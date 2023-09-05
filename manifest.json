@@ -1,0 +1,28 @@
+{
+    "manifest_version": 3,
+    "name": "GWNU Asignment Notification",
+    "version": "1.0",
+    "permissions": [
+        "storage",
+        "alarms",
+        "notifications"
+    ],
+    "host_permissions": [
+        "http://54.80.179.208/*"
+    ],
+    "action": {
+        "default_popup": "popup.html"
+    },
+    "background": {
+        "service_worker": "js/background.js"
+    },
+    "icons": {
+        "16": "images/icon16.png",
+        "48": "images/icon48.png",
+        "128": "images/icon128.png"
+    },
+    "web_accessible_resources": [{
+        "resources": ["assignment.html", "login.html"],
+        "matches": ["<all_urls>"]
+    }]
+}
