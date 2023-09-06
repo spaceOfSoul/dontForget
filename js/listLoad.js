@@ -20,10 +20,20 @@ chrome.storage.local.get(['assignment data'], (result) => {
             const li = document.createElement('li');
             li.className = 'list-group-item d-flex justify-content-between align-items-center';
 
-            li.textContent = subject;
-
             const assignmentsArray = assignmentData[subject].assignments;
             const arrayLength = assignmentsArray.length;
+
+            var contentSubject = subject;
+            li.textContent = contentSubject;
+
+            if (subject.endsWith("NEW")) {
+                li.textContent = subject.slice(0, -3);
+
+                const span = document.createElement('span');
+                span.className = 'badge badge-danger badge-pill';
+                span.textContent = "NEW";
+                li.appendChild(span);
+            }
 
             // 과제 개수
             if (arrayLength > 0) {
