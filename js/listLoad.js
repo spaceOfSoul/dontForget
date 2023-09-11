@@ -19,6 +19,9 @@ chrome.storage.local.get(['assignment data'], (result) => {
         for (const subject in assignmentData) {
             const li = document.createElement('li');
             li.className = 'list-group-item d-flex justify-content-between align-items-center';
+            li.addEventListener('click', () => {
+                window.open(assignmentData[subject].link, '_blank');
+            });
 
             const assignmentsArray = assignmentData[subject].assignments;
             const arrayLength = assignmentsArray.length;
@@ -40,11 +43,16 @@ chrome.storage.local.get(['assignment data'], (result) => {
                 const span = document.createElement('span');
                 span.className = 'badge badge-primary badge-pill';
                 span.textContent = arrayLength.toString();
+                span.addEventListener('click', (e) => {
+                    e.stopPropagation(); // 부모 항목의 클릭 이벤트를 방지합니다.
+                    window.open(assignmentData[subject].assignment_link, '_blank');
+                });
                 li.appendChild(span);
             }
 
             ulElement.appendChild(li);
         }
+        chrome.runtime.sendMessage({ type: 'SET_NOTIFICATIONS', data: assignmentData });
     } else {
         after_login.classList.add("hidden");
         console.log("Can't found for key 'assignment data'.");
