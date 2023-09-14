@@ -40,8 +40,17 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
     }
 });
 
-function setAlarm(time, assignment, notificationMessage) {
+function setAlarm(time, assignment, dueDateStr, num) {
     const now = new Date();
+    const dueDate = new Date(dueDateStr);
+
+    const diff = dueDate - now; // 밀리초 잔위
+
+    const days = Math.floor(diff / (1000 * 60 * 60 * 24)); // 일
+    const hours = Math.floor((diff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60)); // 시
+    const minutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60)); // 분
+
+    const notificationMessage = `${days}일 ${hours}시간 ${minutes}분`;
 
     if (now > time) {
         chrome.notifications.create({
@@ -51,10 +60,15 @@ function setAlarm(time, assignment, notificationMessage) {
             message: `${assignment.title} 과제의 마감 시간이 ${notificationMessage} 남았습니다.`,
         });
     } else {
-        chrome.alarms.create(`assignment-${assignment.title}-${notificationMessage}`, {
+        chrome.alarms.create(`assignment-${assignment.title}-${dueDateStr}-${num}`, {
             when: time.getTime(),
         });
     }
+}
+
+function deleteAlarm(assignment, dueDateStr, num) {
+    const alarmName = `assignment-${assignment.title}-${dueDateStr}-${num}`;
+    chrome.alarms.clear(alarmName);
 }
 
 function setAssignmentNotifications(subjects) {
@@ -71,6 +85,10 @@ function setAssignmentNotifications(subjects) {
                 const weekBefore = new Date(dueDate);
                 weekBefore.setDate(weekBefore.getDate() - 7);
 
+                //이틀 전
+                const twoBefore = new Date(dueDate);
+                twoBefore.setDate(twoBefore.getDate() - 2);
+
                 //하루 전
                 const dayBefore = new Date(dueDate);
                 dayBefore.setDate(dayBefore.getDate() - 1);
@@ -84,16 +102,29 @@ function setAssignmentNotifications(subjects) {
                 fiveMinutesBefore.setMinutes(fiveMinutesBefore.getMinutes() - 5);
 
                 if (now < weekBefore)
-                    setAlarm(weekBefore, assignment, "일주일");
+                    setAlarm(weekBefore, assignment, assignment.due, 7);
+                else
+                    deleteAlarm(assignment, assignment.due, 7);
+
+                if (now < twoBefore)
+                    setAlarm(twoBefore, assignment, assignment.due, 2);
+                else
+                    deleteAlarm(assignment, assignment.due, 2);
 
                 if (now < dayBefore)
-                    setAlarm(dayBefore, assignment, "하루");
+                    setAlarm(dayBefore, assignment, assignment.due, 1);
+                else
+                    deleteAlarm(assignment, assignment.due, 1);
 
                 if (now < hourBefore)
-                    setAlarm(hourBefore, assignment, "한 시간");
+                    setAlarm(hourBefore, assignment, assignment.due, "60m");
+                else
+                    deleteAlarm(assignment, assignment.due, "60m");
 
                 if (now < fiveMinutesBefore)
-                    setAlarm(fiveMinutesBefore, assignment, "5분");
+                    setAlarm(fiveMinutesBefore, assignment, assignment.due, "5m");
+                else
+                    deleteAlarm(assignment, assignment.due, "5m");
 
             }
         });
@@ -103,7 +134,19 @@ function setAssignmentNotifications(subjects) {
 
 chrome.alarms.onAlarm.addListener((alarm) => {
     if (alarm.name.startsWith("assignment-")) {
-        const [_, assignmentTitle, notificationMessage] = alarm.name.split('-');
+        const [_, assignmentTitle, dueDateStr, num] = alarm.name.split('-');
+
+        const dueDate = new Date(dueDateStr);
+        const now = new Date();
+
+        const diff = dueDate - now; // 밀리초 잔위
+
+        const days = Math.floor(diff / (1000 * 60 * 60 * 24)); // 일
+        const hours = Math.floor((diff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60)); // 시
+        const minutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60)); // 분
+
+        const notificationMessage = `${days}일 ${hours}시간 ${minutes}분`;
+
         chrome.notifications.create({
             type: 'basic',
             iconUrl: '../images/icon32.png',
