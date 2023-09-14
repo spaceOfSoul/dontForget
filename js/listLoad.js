@@ -2,8 +2,8 @@ var assignmentData = null;
 
 const before_login = document.querySelector("#before-login");
 const after_login = document.querySelector("#after-login");
-
-const loadingSpinner = document.getElementById("overlay");
+const reload_btn = document.querySelector("#reload_btn");
+const loadingSpinner = document.querySelector("#overlay");
 loadingSpinner.style.display = "none";
 
 function get_assignment_data_list() {
@@ -15,7 +15,7 @@ function get_assignment_data_list() {
 
         if ('assignment data' in result) {
             const ulElement = document.querySelector('.scroll-list');
-
+            ulElement.innerHTML = "";
             before_login.classList.add("hidden");
             assignmentData = result['assignment data'];
             console.log("Data retrieved from local storage:", assignmentData);
@@ -72,6 +72,8 @@ function get_assignment_data_list() {
 
 function request_assign_data() {
     chrome.storage.local.get("gwnu_assignment_token", (token) => {
+        loadingSpinner.style.display = "flex";
+
         token_data = token.gwnu_assignment_token;
         if (!token_data) {
             console.error("Can't found Token.");
@@ -87,15 +89,29 @@ function request_assign_data() {
             })
             .then(response => response.json())
             .then(data => {
-                loadingSpinner.style.display = "flex";
-                console.log(data);
+
+                if ("error" in data) { // 에러 발생시
+                    console.log("Token is invalid.");
+                    window.location.href = "login.html";
+                } else { //과제 정보가 멀쩡히 왔을 시.
+                    chrome.storage.local.set({ 'assignment data': data }, () => {
+                        console.log('Data stored in local storage');
+                    });
+                }
+
                 get_assignment_data_list();
-                loadingSpinner.style.display = "none";
             })
             .catch((error) => {
                 console.error('Error:', error);
                 window.location.href = "login.html";
+            }).finally(() => {
+                loadingSpinner.style.display = "none";
             });
     });
 }
+
+reload_btn.addEventListener('click', () => {
+    request_assign_data();
+});
+
 get_assignment_data_list();
