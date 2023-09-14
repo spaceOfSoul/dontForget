@@ -39,15 +39,23 @@
             <span class="sr-only">Loading...</span>
         </div>
     </div>
+
     <ul class="list-group scroll-list">
     </ul>
+
     <div id="after-login">
         <div class="jumbotron">
-            <p>아래를 눌러 갱신하기.</p>
+            <div class="btn-group btn-group-sm mb-2 mt-n4" role="group">
+                <button type="button" class="btn btn-secondary" id="assignment_list">과제목록</button>
+                <button type="button" class="btn btn-secondary" id="lecture_list">강의목록</button>
+                <button type="button" class="btn btn-secondary" id="etc_list">기타강의목록</button>
+            </div>
+            <br>
             <button class="btn btn-primary" id="reload_btn" role="button">과제 갱신</button>
             <a class="btn btn-primary" href="/login.html" role="button">재로그인</a>
         </div>
     </div>
+
     <script src="js/listLoad.js"></script>
 </body>
 

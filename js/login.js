@@ -12,7 +12,7 @@ document.addEventListener("submit", (e) => {
     const id_val = id_input.value;
     const pw_val = pw_input.value;
 
-    fetch("http://127.0.0.1:5000/login", {
+    fetch("http://54.80.179.208/login", {
             method: "POST",
             headers: {
                 "Content-Type": "application/json"
