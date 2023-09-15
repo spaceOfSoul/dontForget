@@ -8,7 +8,7 @@ function setDailyAlarm() {
     }
 
     const delayInMinutes = (nextAlarmTime.getTime() - now.getTime()) / 1000 / 60;
-    const periodInMinutes = 24 * 60; // 하루에 한 번
+    const periodInMinutes = 12 * 60; // 하루에 두 번(12시간 씩 한번)
 
     chrome.alarms.create('dailyAlarm', {
         delayInMinutes,
@@ -18,11 +18,35 @@ function setDailyAlarm() {
 
 chrome.alarms.onAlarm.addListener((alarm) => {
     if (alarm.name === 'dailyAlarm') {
-        chrome.notifications.create({
-            type: 'basic',
-            iconUrl: '../images/icon32.png',
-            title: '목록 갱신알림',
-            message: '재로그인 후 새로운 과제가 있는지 확인해주세요!'
+        chrome.storage.local.get("gwnu_assignment_token", (token) => {
+            // token search
+            token_data = token.gwnu_assignment_token;
+            if (!token_data) {
+                console.error("Can't found Token.");
+                return;
+            }
+
+            fetch('http://54.80.179.208/assignment', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(token_data)
+                })
+                .then(response => response.json())
+                .then(data => {
+
+                    if ("error" in data) { // 에러 발생시
+                        console.log("Token is invalid.");
+                    } else { //과제 정보가 멀쩡히 왔을 시.
+                        chrome.storage.local.set({ 'assignment data': data }, () => {
+                            console.log('Data stored in local storage');
+                        });
+                    }
+                })
+                .catch((error) => {
+                    console.error('Error:', error);
+                });
         });
     }
 });
