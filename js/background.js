@@ -46,6 +46,13 @@ chrome.alarms.onAlarm.addListener((alarm) => {
                 })
                 .catch((error) => {
                     console.error('Error:', error);
+                }).finally(() => {
+                    chrome.notifications.create({
+                        type: 'basic',
+                        iconUrl: '../images/icon32.png',
+                        title: '과제 정보 업데이트 완료',
+                        message: `강의 및 과제의 정보가 업데이트되었습니다.`,
+                    });
                 });
         });
     }
