@@ -165,24 +165,34 @@ function setAssignmentNotifications(subjects) {
 
 chrome.alarms.onAlarm.addListener((alarm) => {
     if (alarm.name.startsWith("assignment-")) {
-        const [_, assignmentTitle, dueDateStr, num] = alarm.name.split('-');
+        const parts = alarm.name.split('-');
+        const assignmentTitle = parts[1];
+        const dueDateStr = `${parts[2]}-${parts[3]}-${parts[4]}`;
 
         const dueDate = new Date(dueDateStr);
         const now = new Date();
 
-        const diff = dueDate - now; // 밀리초 잔위
+        const diff = dueDate - now; // 밀리초 단위
 
-        const days = Math.floor(diff / (1000 * 60 * 60 * 24)); // 일
-        const hours = Math.floor((diff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60)); // 시
-        const minutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60)); // 분
+        let days = Math.floor(diff / (1000 * 60 * 60 * 24)); // 일
+        let hours = Math.floor((diff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60)); // 시
+        let minutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60)); // 분
 
-        const notificationMessage = `${days}일 ${hours}시간 ${minutes}분`;
-
-        chrome.notifications.create({
-            type: 'basic',
-            iconUrl: '../images/icon32.png',
-            title: '과제 마감 알림',
-            message: `${assignmentTitle} 과제의 마감 시간이 ${notificationMessage} 남았습니다.`,
-        });
+        if (diff <= 0) {
+            chrome.notifications.create({
+                type: 'basic',
+                iconUrl: '../images/icon32.png',
+                title: '과제 마감 알림',
+                message: `${assignmentTitle} 과제가 마감되었습니다. 제출은 잘 마치셨나요?`,
+            });
+        } else {
+            const notificationMessage = `${days}일 ${hours}시간 ${minutes}분`;
+            chrome.notifications.create({
+                type: 'basic',
+                iconUrl: '../images/icon32.png',
+                title: '과제 마감 알림',
+                message: `${assignmentTitle} 과제의 마감 시간이 ${notificationMessage} 남았습니다.`,
+            });
+        }
     }
 });
