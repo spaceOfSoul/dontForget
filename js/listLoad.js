@@ -26,6 +26,14 @@ function get_assignment_data_list() {
                 const assignmentsArray = assignmentData[subject].assignments;
                 const now = new Date();
 
+                if (assignmentsArray.length == 0) {
+                    const li = document.createElement('li');
+                    li.className = 'list-group-item d-flex justify-content-between align-items-center';
+                    li.textContent = "현재 과제가 없습니다.";
+
+                    ulElement.appendChild(li);
+                }
+
                 for (let i = 0; i < assignmentsArray.length; i++) {
                     if (assignmentsArray[i].status == "미제출" && now < new Date(assignmentsArray[i].due)) {
                         const li = document.createElement('li');
