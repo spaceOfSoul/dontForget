@@ -22,17 +22,14 @@ function get_assignment_data_list() {
             const assignmentData = result['assignment data'];
             console.log("Data retrieved from local storage:", assignmentData);
 
+            let sum = 0;
+
             for (const subject in assignmentData) {
+                console.log(subject);
                 const assignmentsArray = assignmentData[subject].assignments;
                 const now = new Date();
 
-                if (assignmentsArray.length == 0) {
-                    const li = document.createElement('li');
-                    li.className = 'list-group-item d-flex justify-content-between align-items-center';
-                    li.textContent = "현재 과제가 없습니다.";
-
-                    ulElement.appendChild(li);
-                }
+                sum += assignmentsArray.length;
 
                 for (let i = 0; i < assignmentsArray.length; i++) {
                     if (assignmentsArray[i].status == "미제출" && now < new Date(assignmentsArray[i].due)) {
@@ -54,6 +51,15 @@ function get_assignment_data_list() {
                     }
                 }
             }
+
+            if (sum === 0) {
+                const li = document.createElement('li');
+                li.className = 'list-group-item d-flex justify-content-between align-items-center';
+                li.textContent = "현재 과제가 없습니다.";
+
+                ulElement.appendChild(li);
+            }
+
         } else {
             after_login.classList.add("hidden");
             console.log("Can't found for key 'assignment data'.");
