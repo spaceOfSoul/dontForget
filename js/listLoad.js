@@ -81,9 +81,13 @@ function get_lecture_data_list() {
             assignmentData = result['assignment data'];
             console.log("Lecture and assignment data:", assignmentData);
 
+            let sum = 0;
+
             for (const subject in assignmentData) {
                 if (assignmentData[subject].type == "기타")
                     continue;
+
+                sum += assignmentsArray.length;
 
                 const li = document.createElement('li');
                 li.className = 'list-group-item d-flex justify-content-between align-items-center';
@@ -126,6 +130,15 @@ function get_lecture_data_list() {
 
                 ulElement.appendChild(li);
             }
+
+            if (sum === 0) {
+                const li = document.createElement('li');
+                li.className = 'list-group-item d-flex justify-content-between align-items-center';
+                li.textContent = "현재 강의가 없습니다.";
+
+                ulElement.appendChild(li);
+            }
+
             chrome.runtime.sendMessage({ type: 'SET_NOTIFICATIONS', data: assignmentData });
         } else {
             after_login.classList.add("hidden");
@@ -148,9 +161,13 @@ function get_etc_data_list() {
             assignmentData = result['assignment data'];
             console.log("Lecture and assignment data:", assignmentData);
 
+            let sum = 0;
+
             for (const subject in assignmentData) {
                 if (assignmentData[subject].type != "기타")
                     continue;
+
+                sum += assignmentsArray.length;
 
                 const li = document.createElement('li');
                 li.className = 'list-group-item d-flex justify-content-between align-items-center';
@@ -193,6 +210,15 @@ function get_etc_data_list() {
 
                 ulElement.appendChild(li);
             }
+
+            if (sum === 0) {
+                const li = document.createElement('li');
+                li.className = 'list-group-item d-flex justify-content-between align-items-center';
+                li.textContent = "현재 강의가 없습니다.";
+
+                ulElement.appendChild(li);
+            }
+
             chrome.runtime.sendMessage({ type: 'SET_NOTIFICATIONS', data: assignmentData });
         } else {
             after_login.classList.add("hidden");
